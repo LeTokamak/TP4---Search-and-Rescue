@@ -1,4 +1,4 @@
-import json  # Pour la sérialisation/désérialisation des objects Hello
+import json  # Pour la sérialisation/désérialisation des objects
 import math
 import random
 import string
