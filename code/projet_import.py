@@ -466,15 +466,15 @@ class ContinuousCanvas(VisualizationElement):
         return representation
 
 
-def run_single_server():
+def run_single_server(t):
+    global team
+    team = t
     server = ModularServer(SearchAndRescue,
                            [ContinuousCanvas()],
                            "Search and rescue",
                            {})
-                           # {"n_planets": Slider("Number of planets", 10, 3, 20, 1),
-                           #  "n_ships": Slider("Number of spaceships", 15, 3, 30, 1)})
+
+
 
     server.port = 8521
     server.launch()
-
-#hello
