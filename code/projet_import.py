@@ -55,7 +55,7 @@ def intersect(p1, p2, q1, q2) -> bool:
 class Maze(Agent):
     def __init__(self, planets: List, unique_id: int, model: Model):
         super().__init__(unique_id, model)
-        walls_file = open("./resources/walls.json", "r")
+        walls_file = open("./code/resources/walls.json", "r")
         self.walls = json.load(walls_file)
         walls_file.close()
         x_min = min([w["x1"] for w in self.walls] + [w["x2"] for w in self.walls])
@@ -421,8 +421,8 @@ class SearchAndRescue(mesa.Model):
 
 class ContinuousCanvas(VisualizationElement):
     local_includes = [
-        "./js/simple_continuous_canvas.js",
-        "./js/jquery.min.js",
+        "./code/js/simple_continuous_canvas.js",
+        "./code/js/jquery.min.js",
     ]
 
     def __init__(self, canvas_height=500,
@@ -460,15 +460,15 @@ class ContinuousCanvas(VisualizationElement):
         return representation
 
 
-def run_single_server():
+def run_single_server(t):
+    global team
+    team = t
     server = ModularServer(SearchAndRescue,
                            [ContinuousCanvas()],
                            "Search and rescue",
                            {})
-                           # {"n_planets": Slider("Number of planets", 10, 3, 20, 1),
-                           #  "n_ships": Slider("Number of spaceships", 15, 3, 30, 1)})
+
+
 
     server.port = 8521
     server.launch()
-
-#hello
