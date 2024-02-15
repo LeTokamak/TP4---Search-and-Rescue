@@ -6,6 +6,7 @@
         "linalg",
         "multipoly",
         "networkx",
+        "pyvisgraph",
         "terminee",
         "vizgraph"
     ]
