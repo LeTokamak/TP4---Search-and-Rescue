@@ -32,6 +32,8 @@ EPSILON = 1e-6
 #random.seed(0)
 mailing_boxes = {}
 
+coefficients_division_vitesse = 5
+
 
 # vérifie l'intersection entre le segment[p1, p2] et [q1, q2]
 def intersect(p1, p2, q1, q2) -> bool:
@@ -207,7 +209,7 @@ class Robot(CommunicatingAgent):
                  x: float, y: float, unique_id: int, model: Model, environment: Maze, terrestrial=False):
         super().__init__(unique_id, model)
         self.communication_range = communication_range
-        self.moving_range = moving_range
+        self.moving_range = moving_range/coefficients_division_vitesse
         self.vision_range = vision_range
         self.x = x
         self.y = y
