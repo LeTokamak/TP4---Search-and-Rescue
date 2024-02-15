@@ -55,7 +55,7 @@ def intersect(p1, p2, q1, q2) -> bool:
 class Maze(Agent):
     def __init__(self, planets: List, unique_id: int, model: Model):
         super().__init__(unique_id, model)
-        walls_file = open("./resources/walls.json", "r")
+        walls_file = open("./code/resources/walls.json", "r")
         self.walls = json.load(walls_file)
         walls_file.close()
         x_min = min([w["x1"] for w in self.walls] + [w["x2"] for w in self.walls])
@@ -90,7 +90,7 @@ class Maze(Agent):
                 portrayal = {"Shape": "line",
                              "width": 2,
                              "Layer": 1,
-                             "Color": "black",
+                             "Color": "white",
                              "from_x": w["x1"],
                              "from_y": w["y1"],
                              "to_x": w["x2"],
@@ -298,6 +298,7 @@ class Robot(CommunicatingAgent):
 
 class Speeder(Robot):
     def __init__(self, x, y, model, environment):
+        
         super().__init__(0.05, 0.15, 0.1, 8, x, y, int(uuid.uuid1()), model, environment, terrestrial=True)
 
     def take(self, item: RescueItem):
@@ -421,8 +422,8 @@ class SearchAndRescue(mesa.Model):
 
 class ContinuousCanvas(VisualizationElement):
     local_includes = [
-        "./js/simple_continuous_canvas.js",
-        "./js/jquery.min.js",
+        "./code/js/simple_continuous_canvas.js",
+        "./code/js/jquery.min.js",
     ]
 
     def __init__(self, canvas_height=500,
