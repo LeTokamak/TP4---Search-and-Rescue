@@ -29,8 +29,7 @@ PROBA_ISSUE_ROAD = 0.05
 ROAD_BRANCHING_FACTOR = 0.5
 WAITING_TIME = 3
 EPSILON = 1e-6
-random.seed(0)
-team = []
+#random.seed(0)
 mailing_boxes = {}
 
 
@@ -261,7 +260,24 @@ class Robot(CommunicatingAgent):
             self.taken_item.x, self.taken_item.y = (self.x, self.y)
 
     def step(self) -> None:
-        pass
+        if self.waypoint:
+            self.goto(self.waypoint[0], self.waypoint[1])
+        if self.taken_item is not None:
+            self.taken_item.x, self.taken_item.y = (self.x, self.y)
+        for msg in self.receive():
+            if msg.performative == "inform":
+                if msg.body == "drop":
+                    self.drop_item()
+                else:
+                    self.taken_item = msg.body
+            elif msg.performative == "request":
+                if msg.body == "take":
+                    self.take(msg.sender.taken_item)
+                else:
+                    self.send(Message(msg.sender, self, self.sense(), "inform"))
+            elif msg.performative == "propose":
+                if msg.body == "goto":
+                    self.goto(msg.to[0], msg.to[1])
 
     def sense(self) -> List[Item]:
         sensed = []
@@ -325,7 +341,7 @@ class Balloon(Robot):
             self.x, self.y = destination_x, destination_y
 
     def portrayal_method(self):
-        portrayal = {"Shape": "circle", "r": 3, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+        portrayal = {"Shape": "circle", "r": 0.2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
                      'y': self.y}
         return portrayal
 
@@ -392,6 +408,8 @@ class Climber(Robot):
 def distance(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
+
+team = [Balloon]
 
 class SearchAndRescue(mesa.Model):
 
