@@ -6,5 +6,5 @@ class Dragster(Speeder):
 
 
 if __name__ == "__main__":
-    team = []
-    run_single_server()
+    team = ["PLEIN DE ROBOTS"]
+    run_single_server(team)
