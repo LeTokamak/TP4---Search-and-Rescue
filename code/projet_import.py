@@ -260,24 +260,7 @@ class Robot(CommunicatingAgent):
             self.taken_item.x, self.taken_item.y = (self.x, self.y)
 
     def step(self) -> None:
-        if self.waypoint:
-            self.goto(self.waypoint[0], self.waypoint[1])
-        if self.taken_item is not None:
-            self.taken_item.x, self.taken_item.y = (self.x, self.y)
-        for msg in self.receive():
-            if msg.performative == "inform":
-                if msg.body == "drop":
-                    self.drop_item()
-                else:
-                    self.taken_item = msg.body
-            elif msg.performative == "request":
-                if msg.body == "take":
-                    self.take(msg.sender.taken_item)
-                else:
-                    self.send(Message(msg.sender, self, self.sense(), "inform"))
-            elif msg.performative == "propose":
-                if msg.body == "goto":
-                    self.goto(msg.to[0], msg.to[1])
+        pass
 
     def sense(self) -> List[Item]:
         sensed = []
@@ -408,8 +391,12 @@ class Climber(Robot):
 def distance(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
+class SpeederChef(Speeder):
+    def step(self):
+        self.goto(0.1, 0.1)
+    
 
-team = [Balloon]
+team = [SpeederChef]
 
 class SearchAndRescue(mesa.Model):
 
