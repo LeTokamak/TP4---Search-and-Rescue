@@ -29,9 +29,12 @@ PROBA_ISSUE_ROAD = 0.05
 ROAD_BRANCHING_FACTOR = 0.5
 WAITING_TIME = 3
 EPSILON = 1e-6
-random.seed(0)
-team = []
+AFFICHAGE_RANGE = True
+#random.seed(0)
 mailing_boxes = {}
+
+coefficients_division_vitesse = 5
+
 
 
 # vérifie l'intersection entre le segment[p1, p2] et [q1, q2]
@@ -137,26 +140,26 @@ class Item:
 class Person(Item):
     @staticmethod
     def portrayal_method():
-        color = "yellow"
+        color = "Red"
         r = 5
-        portrayal = {"Shape": "circle",
+        portrayal = [{"Shape": "circle",
                      "Filled": "true",
                      "Layer": 2,
                      "Color": color,
-                     "r": r}
+                     "r": r}]
         return portrayal
 
 
 class RescueItem(Item):
     @staticmethod
     def portrayal_method():
-        color = "blue"
+        color = "Blue"
         r = 2
-        portrayal = {"Shape": "circle",
+        portrayal = [{"Shape": "circle",
                      "Filled": "true",
                      "Layer": 2,
                      "Color": color,
-                     "r": r}
+                     "r": r}]
         return portrayal
 
 
@@ -208,7 +211,7 @@ class Robot(CommunicatingAgent):
                  x: float, y: float, unique_id: int, model: Model, environment: Maze, terrestrial=False):
         super().__init__(unique_id, model)
         self.communication_range = communication_range
-        self.moving_range = moving_range
+        self.moving_range = moving_range/coefficients_division_vitesse
         self.vision_range = vision_range
         self.x = x
         self.y = y
@@ -280,24 +283,48 @@ class Robot(CommunicatingAgent):
                 super().send(msg)
 
     def portrayal_method(self):
-        portrayal = {"Shape": "arrowHead", "s": 1, "Filled": "true", "Color": "Red", "Layer": 2, 'x': self.x,
-                     'y': self.y}
-        if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
-            if self.waypoint[1] - self.y > 0:
-                portrayal['angle'] = math.acos((self.waypoint[0] - self.x) /
-                                               np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+        if not AFFICHAGE_RANGE:
+            portrayal = [{"Shape": "circle", "r": 0.1, "Filled": "true", "Color": "Red", "Layer": 2, 'x': self.x,
+                     'y': self.y}]
+            
+            if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
+                if self.waypoint[1] - self.y > 0:
+                    portrayal['angle'] = math.acos((self.waypoint[0] - self.x) /
+                                                np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+                else:
+                    portrayal['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
+                                                                np.linalg.norm(
+                                                                    (self.waypoint[0] - self.x,
+                                                                    self.waypoint[1] - self.y)))
             else:
-                portrayal['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
-                                                             np.linalg.norm(
-                                                                 (self.waypoint[0] - self.x,
-                                                                  self.waypoint[1] - self.y)))
-        else:
-            portrayal['angle'] = 0
-        return portrayal
+                portrayal['angle'] = 0
+            return portrayal
+    
+        else :
+            portrayal = [{"Shape": "arrowHead", "s": 1, "Filled": "true", "Color": "Red", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color": "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y}]
+            
+            if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
+                if self.waypoint[1] - self.y > 0:
+                    portrayal[0]['angle'] = math.acos((self.waypoint[0] - self.x) /
+                                                np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+                else:
+                    portrayal[0]['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
+                                                                np.linalg.norm(
+                                                                    (self.waypoint[0] - self.x,
+                                                                    self.waypoint[1] - self.y)))
+            else:
+                portrayal[0]['angle'] = 0
+            return portrayal
+        
+        
 
 
 class Speeder(Robot):
     def __init__(self, x, y, model, environment):
+        
         super().__init__(0.05, 0.15, 0.1, 8, x, y, int(uuid.uuid1()), model, environment, terrestrial=True)
 
     def take(self, item: RescueItem):
@@ -324,8 +351,15 @@ class Balloon(Robot):
             self.x, self.y = destination_x, destination_y
 
     def portrayal_method(self):
-        portrayal = {"Shape": "circle", "r": 3, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
-                     'y': self.y}
+        if not AFFICHAGE_RANGE:
+                portrayal = [{"Shape": "circle", "r": 2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+                     'y': self.y}]
+        
+        else :
+            portrayal = [{"Shape": "circle", "r": 2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+                'y': self.y},
+                        {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color":  "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y}]
         return portrayal
 
 
@@ -342,19 +376,40 @@ class Rover(Robot):
             self.taken_item = None
 
     def portrayal_method(self):
-        portrayal = {"Shape": "rectangle", "aspect": 0.75, "size":6, "Filled": "true", "Color": "Brown", "Layer": 2, 'x': self.x,
-                     'y': self.y}
-        if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
-            if self.waypoint[1] - self.y > 0:
-                portrayal['angle'] = math.acos((self.waypoint[0] - self.x) /
-                                               np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+        if not AFFICHAGE_RANGE:
+            portrayal = [{"Shape": "rectangle", "aspect": 0.75, "size":6, "Filled": "true", "Color": "Brown", "Layer": 2, 'x': self.x,
+                     'y': self.y}]
+            
+            if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
+                if self.waypoint[1] - self.y > 0:
+                    portrayal['angle'] = math.acos((self.waypoint[0] - self.x) /
+                                                np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+                else:
+                    portrayal['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
+                                                                np.linalg.norm(
+                                                                    (self.waypoint[0] - self.x,
+                                                                    self.waypoint[1] - self.y)))
             else:
-                portrayal['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
-                                                             np.linalg.norm(
-                                                                 (self.waypoint[0] - self.x,
-                                                                  self.waypoint[1] - self.y)))
-        else:
-            portrayal['angle'] = 0
+                portrayal['angle'] = 0
+    
+        else :
+            portrayal = [{"Shape": "rectangle", "aspect": 0.75, "size":6, "Filled": "true", "Color": "Brown", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color": "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y}]
+            
+            if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
+                if self.waypoint[1] - self.y > 0:
+                    portrayal[0]['angle'] = math.acos((self.waypoint[0] - self.x) /
+                                                np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+                else:
+                    portrayal[0]['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
+                                                                np.linalg.norm(
+                                                                    (self.waypoint[0] - self.x,
+                                                                    self.waypoint[1] - self.y)))
+            else:
+                portrayal[0]['angle'] = 0
+        
         return portrayal
 
 
@@ -371,19 +426,40 @@ class Climber(Robot):
         self.waypoint = (destination_x, destination_y)
 
     def portrayal_method(self):
-        portrayal = {"Shape": "rectangle", "aspect": 0.5, "size":4, "Filled": "true", "Color": "Green", "Layer": 2, 'x': self.x,
-                     'y': self.y}
-        if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
-            if self.waypoint[1] - self.y > 0:
-                portrayal['angle'] = math.acos((self.waypoint[0] - self.x) /
-                                               np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+        if not AFFICHAGE_RANGE:
+            portrayal = [{"Shape": "rectangle", "aspect": 0.5, "size":4, "Filled": "true", "Color": "Green", "Layer": 2, 'x': self.x,
+                     'y': self.y}]
+            
+            if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
+                if self.waypoint[1] - self.y > 0:
+                    portrayal['angle'] = math.acos((self.waypoint[0] - self.x) /
+                                                np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+                else:
+                    portrayal['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
+                                                                np.linalg.norm(
+                                                                    (self.waypoint[0] - self.x,
+                                                                    self.waypoint[1] - self.y)))
             else:
-                portrayal['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
-                                                             np.linalg.norm(
-                                                                 (self.waypoint[0] - self.x,
-                                                                  self.waypoint[1] - self.y)))
-        else:
-            portrayal['angle'] = 0
+                portrayal['angle'] = 0
+    
+        else :
+            portrayal = [{"Shape": "rectangle", "aspect": 0.5, "size":4, "Filled": "true", "Color": "Green", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color": "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y}]
+            
+            if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
+                if self.waypoint[1] - self.y > 0:
+                    portrayal[0]['angle'] = math.acos((self.waypoint[0] - self.x) /
+                                                np.linalg.norm((self.waypoint[0] - self.x, self.waypoint[1] - self.y)))
+                else:
+                    portrayal[0]['angle'] = 2 * math.pi - math.acos((self.waypoint[0] - self.x) /
+                                                                np.linalg.norm(
+                                                                    (self.waypoint[0] - self.x,
+                                                                    self.waypoint[1] - self.y)))
+            else:
+                portrayal[0]['angle'] = 0
+        
         return portrayal
 
 
@@ -391,6 +467,12 @@ class Climber(Robot):
 def distance(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
+class SpeederChef(Speeder):
+    def step(self):
+        self.goto(0.1, 0.1)
+    
+
+team = [SpeederChef]
 
 class SearchAndRescue(mesa.Model):
 
@@ -449,15 +531,20 @@ class ContinuousCanvas(VisualizationElement):
                     for p in portrayal:
                         representation[p["Layer"]].append(p)
                 else:
-                    portrayal["x"] = obj.x
-                    portrayal["y"] = obj.y
-                    representation[portrayal["Layer"]].append(portrayal)
+                    for p in portrayal:
+                        print(p)
+                        p["x"] = obj.x
+                        p["y"] = obj.y
+                        representation[p["Layer"]].append(p)
+                    
         for obj in model.items:
             portrayal = self.portrayal_method(obj)
-            portrayal["x"] = obj.x
-            portrayal["y"] = obj.y
-            representation[portrayal["Layer"]].append(portrayal)
+            for p in portrayal:
+                p["x"] = obj.x
+                p["y"] = obj.y
+                representation[p["Layer"]].append(p)
         return representation
+        
 
 
 def run_single_server(t):
