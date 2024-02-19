@@ -7,21 +7,45 @@ class Dragster(Speeder):
         self.destination = [(random.randint(1,8)/8)-(1/16),(random.randint(1,8)/8)-(1/16)]
 
     def step(self):
-        self.goto(self.destination[0],self.destination[1])
+        """self.goto(self.destination[0],self.destination[1])
         if self.x == self.destination[0] and self.y == self.destination[1] :
-            self.destination = [(random.randint(1,8)/8)-(1/16),(random.randint(1,8)/8)-(1/16)]
+            self.destination = [(random.randint(1,8)/8)-(1/16),(random.randint(1,8)/8)-(1/16)]"""
 
 class Antenne(Balloon):
     def __init__(self, x, y, model, environment):
         super().__init__(x, y, model, environment)
         self.trajectoire = [[0.317,0.317],[0.317,1-0.317],[1-0.317,1-0.317],[1-0.317,0.317],[0.317,0.317],[0.5,0.5]]
         self.step_traj = 0
+        self.list_obj = []
+        self.list_msg = []
     
     def step(self):
-        if self.step_traj <= 5 :
+        liste = self.sense()
+        for elt in liste :
+            if elt not in self.list_obj:
+                self.list_obj.append(elt)
+
+        if self.step_traj <= 4 :
             self.goto(self.trajectoire[self.step_traj][0],self.trajectoire[self.step_traj][1])
             if self.x == self.trajectoire[self.step_traj][0] and self.y == self.trajectoire[self.step_traj][1] :
                 self.step_traj += 1
+
+        if self.step_traj == 5 :
+            list_rob = self.model.retrieve_robots()
+            self.goto(0.5,0.5)
+            if self.x == 0.5 and self.y == 0.5 :
+                for elt in self.list_obj:
+                    for robot in list_rob:
+                        if isinstance(robot,Dragster):
+                            print("balise")
+                            self.list_msg.append(Message(robot,self,elt,"informer","position item"))
+                            print("msg envoyé")
+                self.step_traj += 1
+
+        else :
+            for message in self.list_msg :
+                self.send(message)
+
         
 class Drone_reco(Climber) :
     def __init__(self, x, y, model, environment):
@@ -30,7 +54,6 @@ class Drone_reco(Climber) :
         self.step_traj = 0
         self.list_obj = []
         self.list_msg = []
-
 
     def step(self):
         liste = self.sense()
@@ -44,15 +67,20 @@ class Drone_reco(Climber) :
                 self.step_traj += 1
         
         elif self.step_traj == 12 :
-            self.goto(0.5,0.5)
-            if self.x == 0.5 and self.y == 0.5 :
-                '''for elt in self.list_obj:
-                    self.list_msg.append(Message("Speeder","Climber",elt,"informer","position item"))'''
+            list_rob = self.model.retrieve_robots()
+            self.goto(0.5,0.55)
+            if self.x == 0.5 and self.y == 0.55 :
+                for elt in self.list_obj:
+                    for robot in list_rob:
+                        if isinstance(robot,Dragster):
+                            print("balise")
+                            self.list_msg.append(Message(robot,self,elt,"informer","position item"))
+                            print("msg envoyé")
                 self.step_traj += 1
 
-        '''else :
+        else :
             for message in self.list_msg :
-                self.send(message)'''
+                self.send(message)
         
 
 

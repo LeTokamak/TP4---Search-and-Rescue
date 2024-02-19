@@ -32,6 +32,7 @@ EPSILON = 1e-6
 AFFICHAGE_RANGE = True
 #random.seed(0)
 mailing_boxes = {}
+robots = []
 
 coefficients_division_vitesse = 5
 
@@ -304,6 +305,8 @@ class Robot(CommunicatingAgent):
             portrayal = [{"Shape": "arrowHead", "s": 1, "Filled": "true", "Color": "Red", "Layer": 2, 'x': self.x,
                         'y': self.y},
                         {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color": "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.communication_range, "Border": "true", "Color": "rgba(0,0,255,1)", "Layer": 2, 'x': self.x,
                         'y': self.y}]
             
             if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
@@ -352,13 +355,15 @@ class Balloon(Robot):
 
     def portrayal_method(self):
         if not AFFICHAGE_RANGE:
-                portrayal = [{"Shape": "circle", "r": 2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+                portrayal = [{"Shape": "circle", "r": 1, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
                      'y': self.y}]
         
         else :
-            portrayal = [{"Shape": "circle", "r": 2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+            portrayal = [{"Shape": "circle", "r": 1, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
                 'y': self.y},
                         {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color":  "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.communication_range, "Border": "true", "Color": "rgba(0,0,255,1)", "Layer": 2, 'x': self.x,
                         'y': self.y}]
         return portrayal
 
@@ -396,6 +401,8 @@ class Rover(Robot):
             portrayal = [{"Shape": "rectangle", "aspect": 0.75, "size":6, "Filled": "true", "Color": "Brown", "Layer": 2, 'x': self.x,
                         'y': self.y},
                         {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color": "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.communication_range, "Border": "true", "Color": "rgba(0,0,255,1)", "Layer": 2, 'x': self.x,
                         'y': self.y}]
             
             if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
@@ -446,6 +453,8 @@ class Climber(Robot):
             portrayal = [{"Shape": "rectangle", "aspect": 0.5, "size":4, "Filled": "true", "Color": "Green", "Layer": 2, 'x': self.x,
                         'y': self.y},
                         {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color": "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
+                        'y': self.y},
+                        {"Shape": "circle", "r": 500*self.communication_range, "Border": "true", "Color": "rgba(0,0,255,1)", "Layer": 2, 'x': self.x,
                         'y': self.y}]
             
             if self.waypoint and not (self.waypoint[0] == self.x and self.waypoint[1] == self.y):
@@ -499,6 +508,9 @@ class SearchAndRescue(mesa.Model):
         x, y = self.items[0].x, self.items[0].y
         if all([i.x == x and i.y == y for i in self.items]):
             self.running = False
+            
+    def retrieve_robots(self):
+        return [r for r in self.schedule.agents if isinstance(r, Robot)]
 
 
 class ContinuousCanvas(VisualizationElement):
