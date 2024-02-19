@@ -352,11 +352,11 @@ class Balloon(Robot):
 
     def portrayal_method(self):
         if not AFFICHAGE_RANGE:
-                portrayal = [{"Shape": "circle", "r": 0.2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+                portrayal = [{"Shape": "circle", "r": 2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
                      'y': self.y}]
         
         else :
-            portrayal = [{"Shape": "circle", "r": 0.2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
+            portrayal = [{"Shape": "circle", "r": 2, "Filled": "true", "Color": "Teal", "Layer": 2, 'x': self.x,
                 'y': self.y},
                         {"Shape": "circle", "r": 500*self.vision_range, "Filled": "true", "Color":  "rgba(255,128,0,0.2)", "Layer": 2, 'x': self.x,
                         'y': self.y}]
