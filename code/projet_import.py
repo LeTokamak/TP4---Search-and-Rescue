@@ -174,7 +174,7 @@ class Message:
 
     def __str__(self):
         return (f"Message from {self.sender} to {self.to}; performative: {self.performative}; " +
-                (f"thread: {self.thread}; " if self.thread != None else "") + "body:\n" + self.body)
+                (f"thread: {self.thread}; " if self.thread != None else "") + "body:\n" + str(self.body))
 
 
 class CommunicatingAgent(Agent):
