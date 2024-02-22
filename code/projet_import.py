@@ -278,7 +278,7 @@ class Robot(CommunicatingAgent):
     def send(self, msg) -> None:
         if isinstance(msg.to, Robot) and distance((msg.to.x, msg.to.y), (self.x, self.y)) < self.communication_range:
             super().send(msg)
-        else:
+        elif isinstance(msg.to,list):
             msg.to = [agent for agent in msg.to if distance((agent.x, agent.y), (self.x, self.y)) < self.communication_range]
             if len(msg.to) > 0:
                 super().send(msg)
