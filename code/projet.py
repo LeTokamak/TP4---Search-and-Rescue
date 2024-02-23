@@ -1,4 +1,4 @@
-from projet_import import Speeder, Climber, Message, robots, run_single_server
+from projet_import import Speeder, Climber, Message, Person, robots, run_single_server
 import random as rd
 
 taille_case =  1/8
@@ -27,6 +27,9 @@ team = []
 
 accusee_reception = "Message bien reçu."                  
 
+OBJET_TO_QG = "Amener un objet au QG"
+OBJET_TO_PERSONNE = "Amener un objet à une personne"
+
 class Speeder_chef(Speeder):
     def __init__(self, x, y, model, environment):
         super().__init__(x, y, model, environment)
@@ -34,7 +37,15 @@ class Speeder_chef(Speeder):
         self.envoie_message = False
         
         self.objets_connus = []
+        self.objet_objectif = None
         
+        self.personne = None
+        self.objets_au_QG = []
+        self.objets_sur_personne = []
+        
+        self.mission = None
+        
+        self.etape_mission = 0
         self.etape = 0
     
     def envoie_accusee_reception(self, message):
@@ -46,15 +57,53 @@ class Speeder_chef(Speeder):
                 round((self.y - centre_case)/taille_case)]
         
     def analyse_boite_aux_lettres(self):
+        liste_nouveaux_objets = []
         msgs = self.receive()
         for m in msgs :
             if isinstance(m.body, list):
                 for objet in m.body:
-                    if objet not in self.objets_connus:
+                    if isinstance(objet, Person) :
+                        self.personne = objet
+                        
+                    elif objet not in self.objets_connus:
                         self.objets_connus.append(objet)
+                        liste_nouveaux_objets.append(objet)
+                        
             self.envoie_accusee_reception(m)
+        return liste_nouveaux_objets
     
+    def mission_OBJET_TO_QG(self):
+        # 1 - Récupération de l'objet
+        if self.etape_mission == 0:
+            self.goto(*self.objet_objectif.position)
+            
+            if [self.x, self.y] == self.objet_objectif.position:
+                self.etape_mission += 1
+                self.take(self.objet_objectif)
+    
+    def mission_OBJET_TO_PERSONNE(self):
+        # 1 - Récupération de l'objet
+        if self.etape_mission == 0:
+            self.goto(*self.objet_objectif.position)
+            
+            if [self.x, self.y] == self.objet_objectif.position:
+                self.etape_mission += 1
+                self.take(self.objet_objectif)
+         
+        # 2 - Livraison de l'objet à la personne
+        if self.etape_mission == 1:
+            self.goto(*self.personne.position)
+            
+            if [self.x, self.y] == self.personne.position:
+                self.etape_mission = 0
+                self.drop_item()
+                self.objets_sur_personne.append(self.objet_objectif)
+                self.objet_objectif = None
+                self.mission = None
+    
+        
     def step(self):
+        
         # Etape 0 et 1: Le Speeder explore le QG
         if self.etape <= 1:
             for QG in [case_QG, case_QG_droite]:
@@ -66,15 +115,54 @@ class Speeder_chef(Speeder):
                 if [self.x, self.y] == coordonnees_QG:
                     self.etape += 1
         
-        # Etape 2 : Le Speeder attent un ordre de mission
+        # Etape 2 : Le Speeder attend un ordre de mission
         if self.etape == 2:
-            pass
+            # Si le Speeder sait où est la personne et qu'il a un objet au QG
+            if self.personne != None:
+                if len(self.objets_connus) != len(self.objets_au_QG) + len(self.objets_sur_personne):
+                    objets_non_recuperes = [objet 
+                                            for objet in self.objets_connus 
+                                            if (objet not in self.objets_au_QG and objet not in self.objets_sur_personne)]
+                    
+                    self.mission = OBJET_TO_PERSONNE
+                    self.objet_objectif = objets_non_recuperes[0]
+                    self.mission = 3
+                    self.etape_mission = 0
+                    
+                    self.mission_OBJET_TO_PERSONNE()
+                    
+                elif len(self.objets_au_QG) != 0:
+                    self.mission = OBJET_TO_PERSONNE
+                    self.objet_objectif = self.objets_au_QG[0]
+                    self.mission = 3
+                    self.etape_mission = 0
+                    
+                    self.objets_au_QG.remove(self.objet_objectif)
+                    
+                    self.mission_OBJET_TO_PERSONNE()
+                    
+            # Si le Speeder ne sais pas où est la personne
+            else :
+                if len(self.objets_connus) != len(self.objets_au_QG) + len(self.objets_sur_personne):
+                    objets_non_recuperes = [objet 
+                                            for objet in self.objets_connus 
+                                            if (objet not in self.objets_au_QG and objet not in self.objets_sur_personne)]
+                    
+                    self.mission = OBJET_TO_QG
+                    self.objet_objectif = objets_non_recuperes[0]
+                    self.mission = 3
+                    self.etape_mission = 0
+                    
+                    self.mission_OBJET_TO_QG()
+
         
-        
-        
-        # Etape 3 : Le Speeder recoie une mission
+        # Etape 3 : Le Speeder reçois une mission
         if self.etape == 3:
-            pass
+            if self.mission == OBJET_TO_QG:
+                self.mission_OBJET_TO_QG()
+                
+            elif self.mission == OBJET_TO_PERSONNE:
+                self.mission_OBJET_TO_PERSONNE()
             
             
         print(self.etape)
