@@ -4,7 +4,7 @@ import random as rd
 taille_case =  1/8
 centre_case = (1/8)/2
 
-coordonnees_spawn = [0.5, 0.5]
+coordonnees_spawn = [3.5*(taille_case) + centre_case, 4*(taille_case) + centre_case]
 
 case_QG = [3, 4]
 case_QG_droite = [4, 4]
@@ -75,48 +75,64 @@ class Speeder_chef(Speeder):
     def mission_OBJET_TO_QG(self):
         # 1 - Récupération de l'objet
         if self.etape_mission == 0:
-            self.goto(*self.objet_objectif.position)
+            self.goto(self.objet_objectif.x, self.objet_objectif.y)
             
-            if [self.x, self.y] == self.objet_objectif.position:
+            if [self.x, self.y] == [self.objet_objectif.x, self.objet_objectif.y]:
                 self.etape_mission += 1
                 self.take(self.objet_objectif)
     
     def mission_OBJET_TO_PERSONNE(self):
         # 1 - Récupération de l'objet
         if self.etape_mission == 0:
-            self.goto(*self.objet_objectif.position)
+            self.goto(self.objet_objectif.x, self.objet_objectif.y)
             
-            if [self.x, self.y] == self.objet_objectif.position:
+            if [self.x, self.y] == [self.objet_objectif.x, self.objet_objectif.y]:
                 self.etape_mission += 1
                 self.take(self.objet_objectif)
          
         # 2 - Livraison de l'objet à la personne
         if self.etape_mission == 1:
-            self.goto(*self.personne.position)
+            self.goto(self.personne.x, self.personne.y)
             
-            if [self.x, self.y] == self.personne.position:
+            if [self.x, self.y] == [self.personne.x, self.personne.y]:
                 self.etape_mission = 0
                 self.drop_item()
                 self.objets_sur_personne.append(self.objet_objectif)
                 self.objet_objectif = None
                 self.mission = None
     
+    def detection(self):
+        objets_detectes = self.sense()
+        for objet in objets_detectes:
+            if objet not in self.objets_connus:
+                if isinstance(objet, Person) :
+                    self.personne = objet
+                else :
+                    self.objets_connus.append(objet)
         
     def step(self):
         
         # Etape 0 et 1: Le Speeder explore le QG
+        if self.etape == 0 :
+            destination = case_QG
+        elif self.etape == 1 :
+            destination = case_QG_droite
+        
         if self.etape <= 1:
-            for QG in [case_QG, case_QG_droite]:
-                coordonnees_QG = [QG[0]*(taille_case) + centre_case, 
-                                  QG[1]*(taille_case) + centre_case]
+            coordonnees_QG = [destination[0]*(taille_case) + centre_case, 
+                              destination[1]*(taille_case) + centre_case]
                 
-                self.goto(*coordonnees_QG)
+            self.goto(*coordonnees_QG)
                 
-                if [self.x, self.y] == coordonnees_QG:
-                    self.etape += 1
+            if [self.x, self.y] == coordonnees_QG:
+                self.etape += 1
         
         # Etape 2 : Le Speeder attend un ordre de mission
         if self.etape == 2:
+            self.goto(*coordonnees_spawn)
+            
+            
+            
             # Si le Speeder sait où est la personne et qu'il a un objet au QG
             if self.personne != None:
                 if len(self.objets_connus) != len(self.objets_au_QG) + len(self.objets_sur_personne):
@@ -134,7 +150,7 @@ class Speeder_chef(Speeder):
                 elif len(self.objets_au_QG) != 0:
                     self.mission = OBJET_TO_PERSONNE
                     self.objet_objectif = self.objets_au_QG[0]
-                    self.mission = 3
+                    self.etape = 3
                     self.etape_mission = 0
                     
                     self.objets_au_QG.remove(self.objet_objectif)
@@ -150,7 +166,7 @@ class Speeder_chef(Speeder):
                     
                     self.mission = OBJET_TO_QG
                     self.objet_objectif = objets_non_recuperes[0]
-                    self.mission = 3
+                    self.etape = 3
                     self.etape_mission = 0
                     
                     self.mission_OBJET_TO_QG()
@@ -163,7 +179,10 @@ class Speeder_chef(Speeder):
                 
             elif self.mission == OBJET_TO_PERSONNE:
                 self.mission_OBJET_TO_PERSONNE()
-            
+        
+        self.detection()
+        self.analyse_boite_aux_lettres()
+        
             
         print(self.etape)
         print(self.x, self.y)
@@ -227,7 +246,7 @@ class Climber_perso(Climber):
             self.deplacement_recherche()
         else :
             if not self.accusee_reception_recu :
-                self.goto(*coordonnees_QG)
+                self.goto(*self.coordonnees_position_rapport)
                 self.crie()
                 self.accusee_reception_recu = self.ecoute_accusee_reception()
             else :
@@ -245,12 +264,16 @@ class Climber_gauche(Climber_perso):
     def __init__(self, x, y, model, environment):
         super().__init__(x, y, model, environment)
         self.trajectoire = liste_etape_climber_gauche
+        self.coordonnees_position_rapport = [3.25*(taille_case)+centre_case, 
+                                             4*(taille_case)+centre_case]
         
 
 class Climber_droite(Climber_perso):
     def __init__(self, x, y, model, environment):
         super().__init__(x, y, model, environment)
         self.trajectoire = liste_etape_climber_droite
+        self.coordonnees_position_rapport = [3.75*(taille_case)+centre_case, 
+                                             4*(taille_case)+centre_case]
 
 team.append(Speeder_chef)
 team.append(Climber_gauche)
