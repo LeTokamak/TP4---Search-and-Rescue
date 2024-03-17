@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "accusee",
+        "clemc",
         "coordonnees",
         "datacollection",
         "datacollector",
@@ -10,6 +11,7 @@
         "detectes",
         "ecoute",
         "linalg",
+        "miniconda",
         "multipoly",
         "networkx",
         "pyvisgraph",

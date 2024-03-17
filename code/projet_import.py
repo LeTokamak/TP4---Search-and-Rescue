@@ -565,8 +565,5 @@ def run_single_server(t):
                            [ContinuousCanvas()],
                            "Search and rescue",
                            {})
-
-
-
     server.port = 8521
     server.launch()

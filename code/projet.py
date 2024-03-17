@@ -80,6 +80,36 @@ class Speeder_chef(Speeder):
             if [self.x, self.y] == [self.objet_objectif.x, self.objet_objectif.y]:
                 self.etape_mission += 1
                 self.take(self.objet_objectif)
+
+        # 2 - Livraison de l'objet à la personne si elle est connue, ou sinon au QG
+        if self.etape_mission == 1:
+            if self.personne != None:
+                self.goto(self.personne.x, self.personne.y)
+                
+                if [self.x, self.y] == [self.personne.x, self.personne.y]:
+                    self.etape_mission = 0
+                    self.drop_item()
+                    self.objets_au_QG.append(self.objet_objectif)
+                    self.objet_objectif = None
+                    self.mission = None
+                    self.etape = 2
+            else :
+                if   len(self.objets_au_QG) == 0 : 
+                    coordonnees_objectif = [case_QG[0]*(taille_case) + centre_case, 
+                                            case_QG[1]*(taille_case) + centre_case]
+                elif len(self.objets_au_QG) == 1 : 
+                    coordonnees_objectif = [case_QG_droite[0]*(taille_case) + centre_case, 
+                                            case_QG_droite[1]*(taille_case) + centre_case]
+                
+                self.goto(*coordonnees_objectif)
+                
+                if [self.x, self.y] == coordonnees_objectif:
+                    self.etape_mission = 0
+                    self.drop_item()
+                    self.objets_au_QG.append(self.objet_objectif)
+                    self.objet_objectif = None
+                    self.mission = None
+                    self.etape = 2
     
     def mission_OBJET_TO_PERSONNE(self):
         # 1 - Récupération de l'objet
@@ -100,6 +130,7 @@ class Speeder_chef(Speeder):
                 self.objets_sur_personne.append(self.objet_objectif)
                 self.objet_objectif = None
                 self.mission = None
+                self.etape = 2
     
     def detection(self):
         objets_detectes = self.sense()
@@ -131,8 +162,6 @@ class Speeder_chef(Speeder):
         if self.etape == 2:
             self.goto(*coordonnees_spawn)
             
-            
-            
             # Si le Speeder sait où est la personne et qu'il a un objet au QG
             if self.personne != None:
                 if len(self.objets_connus) != len(self.objets_au_QG) + len(self.objets_sur_personne):
@@ -142,7 +171,7 @@ class Speeder_chef(Speeder):
                     
                     self.mission = OBJET_TO_PERSONNE
                     self.objet_objectif = objets_non_recuperes[0]
-                    self.mission = 3
+                    self.etape = 3
                     self.etape_mission = 0
                     
                     self.mission_OBJET_TO_PERSONNE()
@@ -182,12 +211,6 @@ class Speeder_chef(Speeder):
         
         self.detection()
         self.analyse_boite_aux_lettres()
-        
-            
-        print(self.etape)
-        print(self.x, self.y)
-        print(self.x/taille_case, self.y/taille_case)
-        print(self.case_actuelle())
         
         
 
@@ -279,5 +302,4 @@ team.append(Speeder_chef)
 team.append(Climber_gauche)
 team.append(Climber_droite)
 
-if __name__ == "__main__":
-    run_single_server(team)
+run_single_server(team)
