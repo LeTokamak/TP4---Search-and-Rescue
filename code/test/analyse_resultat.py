@@ -1,29 +1,38 @@
-from mise_en_forme_csv import mise_en_forme_csv
+from mise_en_forme import mise_en_forme
 import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
 
 trigramme = "CCA"
-strat = 1
+strat = 2
 mesure = 1
-donnee_brut = mise_en_forme_csv(trigramme, strat, mesure)
+extension = "txt"
+donnee_brut = mise_en_forme(trigramme, strat, mesure, extension)
+
+print(donnee_brut)
+
+donnee_reussite = [value[1]
+                  for value in donnee_brut 
+                  if value[0] == 1]
+
+donnee_echec = [value[1]
+               for value in donnee_brut 
+               if value[0] == 0 and value[1] > 600]
+
+donnee_plantage = [value[1]
+                  for value in donnee_brut 
+                  if value[0] == 0 and value[1] <= 600]
 
 # === Gestion des échecs ===
-nb_echec = sum(1 
-               for value in donnee_brut 
-               if value > 600)
+nb_echec = len(donnee_echec)
 pourcentage_echec = (nb_echec / len(donnee_brut)) * 100
 
-donne_reussite = [value 
-                  for value in donnee_brut 
-                  if value <= 600]
-
 # === Paramètres de la loi normale ===
-mu = np.mean(donne_reussite)
-sigma = np.std(donne_reussite)
+mu = np.mean(donnee_reussite)
+sigma = np.std(donnee_reussite)
 
 # === Intervalle de confiance ===
-n = len(donne_reussite)
+n = len(donnee_reussite)
 alpha = 0.95  # Confidence level
 z = 1.96  # Z-score for 95% confidence level
 
@@ -37,7 +46,7 @@ print(f"Intervalle de confiance pour sigma: {ci_sigma}")
 # === Graphique ===
 fig, ax1 = plt.subplots()
 
-ax1.hist(donne_reussite, bins=100)
+ax1.hist(donnee_reussite, bins=100)
 ax1.set_xlabel('Nombre de step')
 ax1.set_ylabel("Fréquence sur l'histogramme")
 
@@ -49,7 +58,7 @@ ax2.set_ylabel("Loi normale")
 ax2.legend(loc='upper right')
 
 fig.suptitle(f"Test de la stratégie {strat} de {trigramme} (mesure n°{mesure})", fontsize=16)
-ax1.set_title(f"{len(donne_reussite)} réussites et {nb_echec} échecs (soit {round(pourcentage_echec, 2)}% d'échec)")
+ax1.set_title(f"{len(donnee_reussite)} réussites et {nb_echec} échecs (soit {round(pourcentage_echec, 2)}% d'échec)")
 fig.show()
 plt.show()
 
