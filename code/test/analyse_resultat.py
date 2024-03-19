@@ -4,28 +4,52 @@ from scipy.stats import chi2
 import matplotlib.pyplot as plt
 
 trigramme = "CCA"
-strat = 2
+strat = 3
 mesure = 1
 extension = "txt"
 donnee_brut = mise_en_forme(trigramme, strat, mesure, extension)
 
-print(donnee_brut)
+a = [i[0] for i in donnee_brut]
+
+nb_0 = a.count(0)
+nb_1 = a.count(1)
+nb_2 = a.count(2)
+print(f"Nombre de 0: {nb_0}")
+print(f"Nombre de 1: {nb_1}")
+print(f"Nombre de 2: {nb_2}")
+
+START = 0
+DONE = 1
+STOP = 2
+
+donnee_bug = [value[1]
+              for value in donnee_brut 
+              if value[0] == START]
 
 donnee_reussite = [value[1]
                   for value in donnee_brut 
-                  if value[0] == 1]
+                  if value[0] == DONE]
 
 donnee_echec = [value[1]
                for value in donnee_brut 
-               if value[0] == 0 and value[1] > 600]
+               if value[0] == STOP and value[1] > 450]
 
 donnee_plantage = [value[1]
                   for value in donnee_brut 
-                  if value[0] == 0 and value[1] <= 600]
+                  if value[0] == STOP and value[1] <= 450]
+
+donnee_propre = donnee_reussite + donnee_echec
+
+print(f"\nNombre de bug: {len(donnee_bug)}")
+print(f"Nombre de réussite: {len(donnee_reussite)}")
+print(f"Nombre de échec: {len(donnee_echec)}")
+print(f"Nombre de plantage: {len(donnee_plantage)}")
+print(f"\nNombre de données propres: {len(donnee_propre)}")
+print(f"Nombre de données brutes: {len(donnee_brut)}")
 
 # === Gestion des échecs ===
 nb_echec = len(donnee_echec)
-pourcentage_echec = (nb_echec / len(donnee_brut)) * 100
+pourcentage_echec = (nb_echec*100 / len(donnee_propre))
 
 # === Paramètres de la loi normale ===
 mu = np.mean(donnee_reussite)

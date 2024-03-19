@@ -15,9 +15,10 @@ if PC == PC_TOKKY:
     POSITION_CSV     = (1700, 980)
     
     POSITION_NEUTRE  = (200, 800)
+    POSITION_BARRE_RECHERCHE = ()
 
 attente_reset          =  5 # secondes
-attente_fin_simulation = 50 # secondes
+attente_fin_simulation = 40 # secondes
 
 def copier():
     time.sleep(0.5)
@@ -55,6 +56,12 @@ def tout_selectionner():
     time.sleep(0.5)
     keyboard.press_and_release('ctrl+a', do_press=False)
 
+def end():
+    time.sleep(0.5)
+    keyboard.press_and_release('end', do_release=False)
+    time.sleep(0.5)
+    keyboard.press_and_release('end', do_press=False)
+
 def main():
 
     double_clic(POSITION_RESET)
@@ -73,6 +80,8 @@ def main():
     tapper(";")
     coller()
     tapper(";\n")
+    
+    end()
     
     sauvegarder()
     

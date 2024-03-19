@@ -10,6 +10,7 @@
         "detectees",
         "detectes",
         "ecoute",
+        "etat",
         "linalg",
         "miniconda",
         "multipoly",
@@ -19,6 +20,8 @@
         "recu",
         "RECUPERER",
         "recuperes",
+        "resultats",
+        "strat",
         "terminee",
         "vizgraph"
     ]

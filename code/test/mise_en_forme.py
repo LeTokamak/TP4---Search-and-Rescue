@@ -27,9 +27,10 @@ def mise_en_forme(trigramme, num_strat, num_mesure, extension):
             data_propre[i] = data_propre[i].replace('Current Step: ', '')
         i = 0
         while i != len(data_propre):
-            if data_propre[i] in ('Start\n', 'Done\n'):
+            if data_propre[i] in ('Start\n', 'Done\n', 'Stop\n'):
                 if data_propre[i] == 'Start\n': etat = 0
-                if data_propre[i] == 'Done\n' : etat = 1
+                if data_propre[i] ==  'Done\n': etat = 1
+                if data_propre[i] ==  'Stop\n': etat = 2
                 
                 data_final.append((etat, int(data_propre[i+1][:-1])))
             i+=1
