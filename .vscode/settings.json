@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "accusee",
+        "batchrunner",
         "clemc",
         "coordonnees",
         "datacollection",
@@ -9,6 +10,7 @@
         "désérialisation",
         "detectees",
         "detectes",
+        "echec",
         "ecoute",
         "etat",
         "linalg",
@@ -21,6 +23,7 @@
         "RECUPERER",
         "recuperes",
         "resultats",
+        "reussite",
         "strat",
         "terminee",
         "vizgraph"

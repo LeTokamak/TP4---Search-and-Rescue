@@ -3,49 +3,84 @@ import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
 
+import os
+import pandas as pd
+
+LECTURE_BATCH = True
+dossier_resultat = "code/test/resultats"
+
 trigramme = "CCA"
 strat = 3
-mesure = 1
-extension = "txt"
-donnee_brut = mise_en_forme(trigramme, strat, mesure, extension)
 
-a = [i[0] for i in donnee_brut]
+if not LECTURE_BATCH:
 
-nb_0 = a.count(0)
-nb_1 = a.count(1)
-nb_2 = a.count(2)
-print(f"Nombre de 0: {nb_0}")
-print(f"Nombre de 1: {nb_1}")
-print(f"Nombre de 2: {nb_2}")
+    mesure = 1
+    extension = "txt"
+    donnee_brut = mise_en_forme(trigramme, strat, mesure, extension)
 
-START = 0
-DONE = 1
-STOP = 2
+    a = [i[0] for i in donnee_brut]
 
-donnee_bug = [value[1]
-              for value in donnee_brut 
-              if value[0] == START]
+    nb_0 = a.count(0)
+    nb_1 = a.count(1)
+    nb_2 = a.count(2)
+    print(f"Nombre de 0: {nb_0}")
+    print(f"Nombre de 1: {nb_1}")
+    print(f"Nombre de 2: {nb_2}")
 
-donnee_reussite = [value[1]
-                  for value in donnee_brut 
-                  if value[0] == DONE]
+    START = 0
+    DONE = 1
+    STOP = 2
 
-donnee_echec = [value[1]
-               for value in donnee_brut 
-               if value[0] == STOP and value[1] > 450]
+    donnee_bug = [value[1]
+                for value in donnee_brut 
+                if value[0] == START]
 
-donnee_plantage = [value[1]
-                  for value in donnee_brut 
-                  if value[0] == STOP and value[1] <= 450]
+    donnee_reussite = [value[1]
+                    for value in donnee_brut 
+                    if value[0] == DONE]
 
-donnee_propre = donnee_reussite + donnee_echec
+    donnee_echec = [value[1]
+                for value in donnee_brut 
+                if value[0] == STOP and value[1] > 450]
 
-print(f"\nNombre de bug: {len(donnee_bug)}")
-print(f"Nombre de réussite: {len(donnee_reussite)}")
-print(f"Nombre de échec: {len(donnee_echec)}")
-print(f"Nombre de plantage: {len(donnee_plantage)}")
-print(f"\nNombre de données propres: {len(donnee_propre)}")
-print(f"Nombre de données brutes: {len(donnee_brut)}")
+    donnee_plantage = [value[1]
+                    for value in donnee_brut 
+                    if value[0] == STOP and value[1] <= 450]
+
+    donnee_propre = donnee_reussite + donnee_echec
+    
+    print(f"\nNombre de bug: {len(donnee_bug)}")
+    print(f"Nombre de réussite: {len(donnee_reussite)}")
+    print(f"Nombre de échec: {len(donnee_echec)}")
+    print(f"Nombre de plantage: {len(donnee_plantage)}")
+    print(f"\nNombre de données propres: {len(donnee_propre)}")
+    print(f"Nombre de données brutes: {len(donnee_brut)}")
+
+else :
+    liste_data = []
+    mesure = "*"
+    for file in os.listdir(dossier_resultat):
+        if file.endswith(".csv") and "batch" in file and trigramme in file and str(strat) in file:
+            liste_data.append(pd.read_csv(f"{dossier_resultat}/{file}"))
+        
+    donnee_brut = pd.concat(liste_data, axis=0, ignore_index=True)
+    donnee_brut = donnee_brut.drop(["RunId", "iteration", "items", "Delivered", "Unnamed: 0"], axis=1)
+    
+    donnee_brut = list(donnee_brut["Step"])
+    
+    donnee_reussite = [ value
+                        for value in donnee_brut 
+                        if value != 1000]
+
+    donnee_echec = [value
+                    for value in donnee_brut 
+                    if value == 1000]
+    
+    donnee_propre = donnee_reussite + donnee_echec
+        
+        
+
+
 
 # === Gestion des échecs ===
 nb_echec = len(donnee_echec)

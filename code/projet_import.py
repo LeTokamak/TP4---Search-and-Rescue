@@ -23,6 +23,9 @@ from mesa_viz_tornado.UserParam import UserParam, Slider
 import uuid  # Génération de Unique ID
 import pyvisgraph as vg
 from shapely import Polygon, unary_union, Point
+import pandas as pd
+
+from datetime import datetime
 
 NEW_ITEM_PROBA = 0.05
 PROBA_ISSUE_ROAD = 0.05
@@ -558,12 +561,34 @@ class ContinuousCanvas(VisualizationElement):
         
 
 
-def run_single_server(t):
+def run_single_server(t, trigramme, num_strat, nb_iter):
     global team
     team = t
-    server = ModularServer(SearchAndRescue,
-                           [ContinuousCanvas()],
-                           "Search and rescue",
-                           {})
-    server.port = 8521
-    server.launch()
+        
+    if False :
+        
+        server = ModularServer(SearchAndRescue,
+                            [ContinuousCanvas()],
+                            "Search and rescue",
+                            {})
+        server.port = 8521
+        server.launch()
+    
+    else :
+        
+        results = mesa.batch_run(
+            SearchAndRescue,
+            parameters={},
+            number_processes=1,
+            iterations=nb_iter,
+            max_steps=1000,
+            display_progress=False,
+        )
+        
+        results_df = pd.DataFrame(results)
+        print(results_df.keys())
+        
+        m = datetime.now()
+        
+        dossier = "code/test"
+        results_df.to_csv(f"{dossier}/{trigramme}_batch_strat{num_strat}_{str(m).replace(":", "_")}.csv")

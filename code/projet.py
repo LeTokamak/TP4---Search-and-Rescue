@@ -533,17 +533,17 @@ class Climber_droite_v2(Climber_perso_v2):
 
 version = 3
 
-if   version == 1 :
-    team.append(Speeder_chef_v1)
-    team.append(Climber_gauche_v1)
-    team.append(Climber_droite_v1)
-elif version == 2 :
-    team.append(Speeder_chef_v1)
-    team.append(Climber_gauche_v2)
-    team.append(Climber_droite_v2)
-elif version == 3 :
-    team.append(Speeder_chef_v2)
-    team.append(Climber_gauche_v2)
-    team.append(Climber_droite_v2)
+team_1 = [Speeder_chef_v1, Climber_gauche_v1, Climber_droite_v1]
+team_2 = [Speeder_chef_v1, Climber_gauche_v2, Climber_droite_v2]
+team_3 = [Speeder_chef_v2, Climber_gauche_v2, Climber_droite_v2]
 
-run_single_server(team)
+from datetime import datetime
+
+print(f"Début : {datetime.now()}")
+
+run_single_server(team_1, "CCA", 1, 3000)
+print(f"Fin v1 - 3000 : {datetime.now()}")
+run_single_server(team_2, "CCA", 2, 3000)
+print(f"Fin v2 - 3000 : {datetime.now()}")
+run_single_server(team_3, "CCA", 3, 2000)
+print(f"Fin v3 - 2000 : {datetime.now()}")
