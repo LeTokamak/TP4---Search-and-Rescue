@@ -31,6 +31,11 @@ OBJET_TO_QG = "Amener un objet au QG"
 OBJET_TO_PERSONNE = "Amener un objet à une personne"
 RECUPERER_OBJET = "Récupérer un objet"
 
+# === Strat 1 - Speeder_chef_v1 / Climber_perso_v1 ===
+# === Strat 2 - Speeder_chef_v1 / Climber_perso_v2 ===
+# === Strat 3 - Speeder_chef_v2 / Climber_perso_v2 ===
+
+# %% Version 1
 class Speeder_chef_v1(Speeder):
     def __init__(self, x, y, model, environment):
         super().__init__(x, y, model, environment)
@@ -300,7 +305,7 @@ class Climber_droite_v1(Climber_perso_v1):
                                              4*(taille_case)+centre_case]
 
 
-
+# %% Version 2
 class Speeder_chef_v2(Speeder):
     def __init__(self, x, y, model, environment):
         super().__init__(x, y, model, environment)
@@ -537,13 +542,11 @@ team_1 = [Speeder_chef_v1, Climber_gauche_v1, Climber_droite_v1]
 team_2 = [Speeder_chef_v1, Climber_gauche_v2, Climber_droite_v2]
 team_3 = [Speeder_chef_v2, Climber_gauche_v2, Climber_droite_v2]
 
-from datetime import datetime
+team = team_3
 
-print(f"Début : {datetime.now()}")
+## === Variables de Test ===
+trigramme = "CCA"
+strat = 3
+nb_iteration = 100
 
-run_single_server(team_1, "CCA", 1, 3000)
-print(f"Fin v1 - 3000 : {datetime.now()}")
-run_single_server(team_2, "CCA", 2, 3000)
-print(f"Fin v2 - 3000 : {datetime.now()}")
-run_single_server(team_3, "CCA", 3, 2000)
-print(f"Fin v3 - 2000 : {datetime.now()}")
+run_single_server(team, trigramme, strat, nb_iteration, MODE_NORMAL = True)

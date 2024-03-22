@@ -60,7 +60,8 @@ else :
     liste_data = []
     mesure = "*"
     for file in os.listdir(dossier_resultat):
-        if file.endswith(".csv") and "batch" in file and trigramme in file and str(strat) in file:
+        if file.endswith(".csv") and "batch" in file and trigramme in file and f"strat{strat}" in file:
+            print(f"Traitement de {file}")
             liste_data.append(pd.read_csv(f"{dossier_resultat}/{file}"))
         
     donnee_brut = pd.concat(liste_data, axis=0, ignore_index=True)

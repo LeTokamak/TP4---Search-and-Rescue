@@ -37,8 +37,8 @@ AFFICHAGE_RANGE = True
 mailing_boxes = {}
 robots = []
 
-coefficients_division_vitesse = 5
-
+COEF_DIVISION_VITESSE = 5
+MODE_SOMBRE = False
 
 
 # vérifie l'intersection entre le segment[p1, p2] et [q1, q2]
@@ -93,11 +93,16 @@ class Maze(Agent):
 
     def portrayal_method(self):
         portrayals = []
+        if MODE_SOMBRE :
+            color = "white"
+        else :
+            color = "black"
+        
         for w in self.walls:
                 portrayal = {"Shape": "line",
                              "width": 2,
                              "Layer": 1,
-                             "Color": "white",
+                             "Color": color,
                              "from_x": w["x1"],
                              "from_y": w["y1"],
                              "to_x": w["x2"],
@@ -215,7 +220,7 @@ class Robot(CommunicatingAgent):
                  x: float, y: float, unique_id: int, model: Model, environment: Maze, terrestrial=False):
         super().__init__(unique_id, model)
         self.communication_range = communication_range
-        self.moving_range = moving_range/coefficients_division_vitesse
+        self.moving_range = moving_range/COEF_DIVISION_VITESSE
         self.vision_range = vision_range
         self.x = x
         self.y = y
@@ -561,11 +566,11 @@ class ContinuousCanvas(VisualizationElement):
         
 
 
-def run_single_server(t, trigramme, num_strat, nb_iter):
+def run_single_server(t, trigramme = "X", num_strat = 0, nb_iter = 1, MODE_NORMAL = True):
     global team
     team = t
         
-    if False :
+    if MODE_NORMAL :
         
         server = ModularServer(SearchAndRescue,
                             [ContinuousCanvas()],
@@ -582,7 +587,7 @@ def run_single_server(t, trigramme, num_strat, nb_iter):
             number_processes=1,
             iterations=nb_iter,
             max_steps=1000,
-            display_progress=False,
+            display_progress=True,
         )
         
         results_df = pd.DataFrame(results)
@@ -590,5 +595,5 @@ def run_single_server(t, trigramme, num_strat, nb_iter):
         
         m = datetime.now()
         
-        dossier = "code/test"
+        dossier = "code/test/resultats"
         results_df.to_csv(f"{dossier}/{trigramme}_batch_strat{num_strat}_{str(m).replace(":", "_")}.csv")
