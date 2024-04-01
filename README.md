@@ -14,8 +14,10 @@ Voici la liste des robots achetables :
 
 ## Notre travail
 Nous formions un groupe de trois, et nous avons chacun opter pour une stratégie :
-- **SCC** (Speeder, Climber, Climber)
-- **SCB** (Speeder, Climber, Ballon)
-- **RCBB** (Rover, Climber, Ballon, Ballon)
+- **SCC** (Speeder, Climber, Climber) - 14 argents
+- **SCB** (Speeder, Climber, Ballon) - 14 argents
+- **RCBB** (Rover, Climber, Ballon, Ballon) - 14 argents
+
+ Nous avons tous les trois choisis une stratégie centralisée, où les trajectoires des robots chargés de la détection des objets et de la personne.
 
 
